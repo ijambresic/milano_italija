@@ -83,6 +83,8 @@ function seedUsers() {
 }
 
 // delete existing tables and data for a clean slate
+
+/*
 db.exec(`
   DROP TABLE IF EXISTS purchases;
   DROP TABLE IF EXISTS submitted_quests;
@@ -91,7 +93,7 @@ db.exec(`
   DROP TABLE IF EXISTS events;
   DROP TABLE IF EXISTS users;
 `);
-
+*/
 createTables();
 seedUsers();
 console.log('Database initialized.');
