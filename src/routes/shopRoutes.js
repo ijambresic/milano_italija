@@ -22,5 +22,5 @@ router.post('/:id/buy', requireRole('player'), (req, res) => {
   purchaseItemPlaceholder(req.params.id, req.currentUser.id);
   res.redirect('/shop');
 });
-
+//nis
 module.exports = router;
