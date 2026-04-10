@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
+    "start": "node scripts/initDb.js && node src/server.js",
     "db:init": "node scripts/initDb.js"
   },
   "dependencies": {
