@@ -1,0 +1,75 @@
+<%- include('partials-header') %>
+<div class="card">
+  <h1>Admin Dashboard</h1>
+  <p>Create quests, manage rewards, and review player progress.</p>
+  <a href="/reviews">View Pending Reviews</a>
+</div>
+
+<div class="card">
+  <h2>Create Quest</h2>
+  <form action="/quests" method="POST">
+    <input name="title" placeholder="Quest title" required />
+    <textarea name="description" placeholder="Description"></textarea>
+    <input name="reward" placeholder="Reward"/>
+    <input name="max_reward" placeholder="0" type="number"/>
+    <input name="deadline" type="datetime-local" />
+    <button type="submit">Create quest</button>
+  </form>
+</div>
+
+<div class="card"> 
+  <h2>Create Events</h2>
+  <form action="/events" method="POST">
+    <input name="title" placeholder="Event title" required />
+    <textarea name="description" placeholder="Description"></textarea>
+    <input name="reward" placeholder="Reward"/>
+    <input name="event_start" type="datetime-local" />
+    <input name="event_end" type="datetime-local" />
+    <button type="submit">Create event</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Active quests</h2>
+  <% if (!quests.length) { %>
+    <p>No active quests.</p>
+  <% } %>
+  <% quests.forEach(quest => { %>
+    <div class="card">
+      <strong><%= quest.title %></strong>
+      <p><%= quest.description %></p>
+      <p>Reward: <%= quest.reward %> coins</p>
+      <p>Deadline: <%= quest.deadline || 'none' %></p>
+      <p>Status: <%= quest.status %></p>
+      <form action="/quests/<%= quest.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this quest?');">
+        <button type="submit">Delete</button>
+      </form>
+    </div>
+  <% }) %>
+</div>
+
+<div class="card">
+  <h2>Active events</h2>
+  <% if (!events.length) { %>
+    <p>No active events.</p>
+  <% } %>
+  <% events.forEach(event => { %>
+    <div class="card">
+      <strong><%= event.title %></strong>
+      <p><%= event.description %></p>
+      <p>Reward: <%= event.reward %> coins</p>
+      <p>Start: <%= event.event_start || 'none' %></p>
+      <p>End: <%= event.event_end || 'none' %></p>
+      <form action="/events/<%= event.id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this event?');">
+        <button type="submit">Delete</button>
+      </form>
+      <!-- award coins -->
+      <form action="/events/<%= event.id %>/award" method="POST" style="display: inline;">
+        <input name="reward" placeholder="Coins to award" type="number" required />
+        <button type="submit">Award coins</button>
+      </form>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials-footer') %>

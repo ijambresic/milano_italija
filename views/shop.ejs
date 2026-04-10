@@ -1,0 +1,37 @@
+<%- include('partials-header') %>
+<div class="card">
+  <h1>Shop</h1>
+  <p>Spend earned currency on rewards.</p>
+</div>
+
+<% if (currentUser.role === 'admin') { %>
+<div class="card">
+  <h2>Add shop item</h2>
+  <form action="/shop" method="POST">
+    <input name="name" placeholder="Item name" required />
+    <textarea name="description" placeholder="Description"></textarea>
+    <input name="price" type="number" min="0" placeholder="Price" />
+    <button type="submit">Add item</button>
+  </form>
+</div>
+<% } %>
+
+<div class="card">
+  <h2>Items</h2>
+  <% if (!items.length) { %>
+    <p>No shop items yet.</p>
+  <% } %>
+  <% items.forEach(item => { %>
+    <div class="card">
+      <strong><%= item.name %></strong>
+      <p><%= item.description %></p>
+      <p>Price: <%= item.price %> coins</p>
+      <% if (currentUser.role === 'player') { %>
+        <form action="/shop/<%= item.id %>/buy" method="POST">
+          <button type="submit">Buy</button>
+        </form>
+      <% } %>
+    </div>
+  <% }) %>
+</div>
+<%- include('partials-footer') %>

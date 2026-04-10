@@ -1,0 +1,77 @@
+<%- include('partials-header') %>
+<div class="card">
+  <h1>Ena Dashboard</h1>
+  <p>Rješavaj zadatke i sudjeluj u contestima da bi zaradila hrpu para.</p>
+</div>
+
+<div class="card">
+  <h2>Events</h2>
+  <% if (!events.length) { %>
+    <p>Nema evenata...</p>
+  <% } %>
+  <% events.forEach(event => { %>
+    <div class="card">
+      <strong><%= event.name %></strong>
+      <p><%= event.description %></p>
+      <p>Vrijeme eventa: <%= new Date(event.event_start).toLocaleString() %> - <%= new Date(event.event_end).toLocaleString() %></p>
+      <p>Reward: <%= event.reward %></p>
+      <p>Reward achieved: <%= event.reward_achieved %> coins</p>
+    </div>
+  <% }) %>
+</div>
+
+<div class="card">
+  <h2>Zadaci</h2>
+  <% if (!quests.length) { %>
+    <p>Nema zadataka...</p>
+  <% } %>
+  <% quests.forEach(quest => { %>
+    <div class="card">
+      <strong><%= quest.title %></strong>
+      <p><%= quest.description %></p>
+      <p>Reward: <%= quest.reward %> coins</p>
+      <p>Time left: <span class="countdown" data-deadline="<%= quest.deadline %>">--:--:--:--</span></p>
+      <p>Reward achieved: <%= quest.achieved_reward %> / <%= quest.max_reward %> coins</p>
+      <!-- submit button -->
+      <% if (questStatus.find(q => q.id === quest.id)?.status === 0) { %>
+        <p><em>Ovaj zadatak je trenutno na reviewu.</em></p>
+      <% } else { %>
+         <form action="/quests/<%= quest.id %>/submit" method="POST" style="display: inline;">
+          <button type="submit">Submit</button>
+        </form>
+      <% } %>
+    </div>
+  <% }) %>
+</div>
+
+<script>
+function formatTimeRemaining(deadline) {
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  const diff = deadlineDate - now;
+
+  if (diff <= 0) {
+    return '00:00:00:00';
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function updateCountdowns() {
+  document.querySelectorAll('.countdown').forEach(element => {
+    const deadline = element.getAttribute('data-deadline');
+    element.textContent = formatTimeRemaining(deadline);
+  });
+}
+
+// Update immediately and then every second
+updateCountdowns();
+setInterval(updateCountdowns, 1000);
+</script>
+
+<%- include('partials-footer') %>

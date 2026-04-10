@@ -1,0 +1,22 @@
+<%- include('partials-header') %>
+<div class="card">
+  <h1>Pending Reviews</h1>
+  <% if (!submissions.length) { %>
+    <p>No pending submissions.</p>
+  <% } else { %>
+    <% submissions.forEach(submission => { %>
+      <div class="card">
+        <h3><%= submission.title %></h3>
+        <p><%= submission.description %></p>
+        <p>Original Reward: <%= submission.reward %></p>
+        <p>Deadline: <%= submission.deadline || 'none' %></p>
+        <p>Submitted: <%= new Date(submission.submission_time).toLocaleString() %></p>
+        <form action="/reviews/<%= submission.id %>" method="POST">
+          <input name="newReward" type="number" min="0" placeholder="Reward Points" required />
+          <button type="submit">Set Reward</button>
+        </form>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+<%- include('partials-footer') %>

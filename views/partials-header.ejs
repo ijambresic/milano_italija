@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <nav>
+      <div><strong>Quest App</strong></div>
+      <div class="nav-links">
+        <% if (currentUser) { %>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/shop">Shop</a>
+          <span><%= currentUser.username %> (<%= currentUser.role %>) - <%= currentUser.currency %> coins</span>
+          <form class="inline-form" action="/logout" method="POST">
+            <button type="submit">Logout</button>
+          </form>
+        <% } %>
+      </div>
+    </nav>
+  </header>
+  <main>
