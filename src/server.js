@@ -1,9 +1,11 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
 
 const { attachCurrentUser } = require('./middleware/auth');
 const authRoutes = require('./routes/authRoutes');
@@ -13,7 +15,8 @@ const shopRoutes = require('./routes/shopRoutes');
 const reviewsRoutes = require('./routes/reviewsRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 
-dotenv.config();
+console.log('NODE_ENV in db.js =', process.env.NODE_ENV);
+console.log('DATABASE_URL in db.js =', process.env.DATABASE_URL);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
