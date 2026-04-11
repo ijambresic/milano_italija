@@ -1,6 +1,6 @@
 const { findUserById } = require('../services/userService');
 
-function attachCurrentUser(req, res, next) {
+async function attachCurrentUser(req, res, next) {
   const userId = req.session.userId;
   if (!userId) {
     req.currentUser = null;
@@ -8,7 +8,7 @@ function attachCurrentUser(req, res, next) {
     return next();
   }
 
-  const user = findUserById(userId);
+  const user = await findUserById(userId);
   req.currentUser = user || null;
   res.locals.currentUser = user || null;
   next();

@@ -4,14 +4,16 @@ const { getPendingSubmissions, reviewSubmission } = require('../services/questSe
 
 const router = express.Router();
 
-router.get('/reviews', requireRole('admin'), (req, res) => {
-  const submissions = getPendingSubmissions();
+
+router.get('/reviews', requireRole('admin'), async (req, res) => {
+  const submissions = await getPendingSubmissions();
   res.render('reviews', { title: 'Pending Reviews', submissions });
 });
 
-router.post('/reviews/:id', requireRole('admin'), (req, res) => {
+
+router.post('/reviews/:id', requireRole('admin'), async (req, res) => {
   const { newReward } = req.body;
-  reviewSubmission(req.params.id, newReward || 0, 'reviewed');
+  await reviewSubmission(req.params.id, newReward || 0, 'reviewed');
   res.redirect('/reviews');
 });
 

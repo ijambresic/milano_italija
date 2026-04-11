@@ -8,18 +8,21 @@ const {
 
 const router = express.Router();
 
-router.get('/', requireAuth, (req, res) => {
-  const items = getAllShopItems();
+
+router.get('/', requireAuth, async (req, res) => {
+  const items = await getAllShopItems();
   res.render('shop', { title: 'Shop', items });
 });
 
-router.post('/', requireRole('admin'), (req, res) => {
-  createItem(req.body);
+
+router.post('/', requireRole('admin'), async (req, res) => {
+  await createItem(req.body);
   res.redirect('/shop');
 });
 
-router.post('/:id/buy', requireRole('player'), (req, res) => {
-  purchaseItemPlaceholder(req.params.id, req.currentUser.id);
+
+router.post('/:id/buy', requireRole('player'), async (req, res) => {
+  await purchaseItemPlaceholder(req.params.id, req.currentUser.id);
   res.redirect('/shop');
 });
 //nis

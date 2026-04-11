@@ -4,24 +4,27 @@ const { createEvent, deleteEvent, awardEvent } = require('../services/eventServi
 
 const router = express.Router();
 
-router.post('/', requireRole('admin'), (req, res) => {
-    console.log('Received request to create event with body:', req.body);
-  createEvent(req.body);
-  res.redirect('/dashboard');
-});
 
-router.post('/:id/delete', requireRole('admin'), (req, res) => {
-    deleteEvent(req.params.id);
+router.post('/', requireRole('admin'), async (req, res) => {
+    console.log('Received request to create event with body:', req.body);
+    await createEvent(req.body);
     res.redirect('/dashboard');
 });
 
-router.post('/:id/award', requireRole('admin'), (req, res) => {
+
+router.post('/:id/delete', requireRole('admin'), async (req, res) => {
+    await deleteEvent(req.params.id);
+    res.redirect('/dashboard');
+});
+
+
+router.post('/:id/award', requireRole('admin'), async (req, res) => {
     const eventId = req.params.id;
     const reward = parseInt(req.body.reward, 10);
     if (isNaN(reward) || reward < 0) {
         return res.status(400).send('Invalid reward value');
     } else {
-        awardEvent(eventId, reward);
+        await awardEvent(eventId, reward);
         res.redirect('/dashboard');
     }
 });

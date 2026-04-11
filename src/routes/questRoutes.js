@@ -8,18 +8,21 @@ const {
 
 const router = express.Router();
 
-router.post('/', requireRole('admin'), (req, res) => {
-  createQuest(req.body);
+
+router.post('/', requireRole('admin'), async (req, res) => {
+  await createQuest(req.body);
   res.redirect('/dashboard');
 });
 
-router.post('/:id/submit', requireRole('player'), (req, res) => {
-  submitQuest(req.params.id);
+
+router.post('/:id/submit', requireRole('player'), async (req, res) => {
+  await submitQuest(req.params.id);
   res.redirect('/dashboard');
 });
 
-router.post('/:id/delete', requireRole('admin'), (req, res) => {
-  deleteQuest(req.params.id);
+
+router.post('/:id/delete', requireRole('admin'), async (req, res) => {
+  await deleteQuest(req.params.id);
   res.redirect('/dashboard');
 });
 

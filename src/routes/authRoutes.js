@@ -9,9 +9,10 @@ router.get('/login', (req, res) => {
   res.render('login', { title: 'Login', error: null });
 });
 
+
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const user = findUserByUsername(username);
+  const user = await findUserByUsername(username);
 
   if (!user) {
     return res.status(401).render('login', { title: 'Login', error: 'Invalid credentials' });

@@ -6,9 +6,9 @@ const e = require('express');
 
 const router = express.Router();
 
-router.get('/dashboard', requireAuth, (req, res) => {
-  const quests = getAllQuests();
-  const events = getAllEvents();
+router.get('/dashboard', requireAuth, async (req, res) => {
+  const quests = await getAllQuests();
+  const events = await getAllEvents();
   if (req.currentUser.role === 'admin') {
     return res.render('dashboard-admin', {
       title: 'Admin Dashboard',
@@ -17,10 +17,10 @@ router.get('/dashboard', requireAuth, (req, res) => {
     });
   }
 
-  const questStatus = quests.map(q => {
-    const status = getStatus(q.id);
+  const questStatus = await Promise.all(quests.map(async q => {
+    const status = await getStatus(q.id);
     return { ...q, status };
-  });
+  }));
 
   console.log('Quest Status:', questStatus);
 
