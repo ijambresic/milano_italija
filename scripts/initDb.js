@@ -1,5 +1,7 @@
+
 const bcrypt = require('bcryptjs');
 const pool = require('../src/config/db');
+console.log('Connecting to:', process.env.DATABASE_URL);
 
 /*
   Note: 'expired' and 'completed' quests will be removed from the database, so their statuses are not included in the schema.
@@ -7,6 +9,7 @@ const pool = require('../src/config/db');
 
 //there is only 1 user and 1 andmin, so we can simplify the database.
 async function createTables() {
+  console.log('Creating users table...');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -16,7 +19,9 @@ async function createTables() {
       currency INTEGER NOT NULL DEFAULT 0
     );
   `);
+  console.log('Users table created.');
 
+  console.log('Creating quests table...');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS quests (
       id SERIAL PRIMARY KEY,
@@ -29,7 +34,9 @@ async function createTables() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
+  console.log('Quests table created.');
 
+  console.log('Creating events table...');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS events (
       id SERIAL PRIMARY KEY,
@@ -42,7 +49,9 @@ async function createTables() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
+  console.log('Events table created.');
 
+  console.log('Creating shop_items table...');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS shop_items (
       id SERIAL PRIMARY KEY,
@@ -53,7 +62,9 @@ async function createTables() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
+  console.log('Shop_items table created.');
 
+  console.log('Creating submitted_quests table...');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS submitted_quests (
       id SERIAL PRIMARY KEY,
@@ -63,6 +74,7 @@ async function createTables() {
       new_reward INTEGER NOT NULL DEFAULT 0
     );
   `);
+  console.log('Submitted_quests table created.');
 }
 
 async function seedUsers() {
@@ -92,10 +104,18 @@ db.exec(`
 `);
 */
 async function main() {
-  await createTables();
-  await seedUsers();
-  console.log('Database initialized.');
-  await pool.end();
+  try {
+    // Test DB connection
+    const { rows } = await pool.query('SELECT NOW()');
+    console.log('Current time from DB:', rows[0]);
+    await createTables();
+    await seedUsers();
+    console.log('Database initialized.');
+  } catch (err) {
+    console.error('Error initializing database:', err);
+  } finally {
+    await pool.end();
+  }
 }
 
 main();
