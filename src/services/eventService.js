@@ -1,29 +1,35 @@
-const db = require('../config/db');
 
-function getAllEvents() {
-  const stmt = db.prepare('SELECT * FROM events');
-  return stmt.all();
+const pool = require('../config/db');
+
+
+async function getAllEvents() {
+  const { rows } = await pool.query('SELECT * FROM events');
+  return rows;
 }
 
-function createEvent({ title, description, event_start, event_end, reward }) {
+
+async function createEvent({ title, description, event_start, event_end, reward }) {
   console.log('Creating event with data:', { title, description, event_start, event_end, reward });
-  const stmt = db.prepare(`
-    INSERT INTO events (title, description, event_start, event_end, reward)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-  stmt.run(title, description, event_start, event_end, reward);
+  await pool.query(
+    `INSERT INTO events (title, description, event_start, event_end, reward)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [title, description, event_start, event_end, reward]
+  );
 }
 
-function deleteEvent(eventId) {
-  db.prepare('DELETE FROM events WHERE id = ?').run(eventId);
+
+async function deleteEvent(eventId) {
+  await pool.query('DELETE FROM events WHERE id = $1', [eventId]);
 }
 
-function awardEvent(eventId, reward) {
-  const event = db.prepare('SELECT * FROM events WHERE id = ?').get(eventId);
+
+async function awardEvent(eventId, reward) {
+  const { rows } = await pool.query('SELECT * FROM events WHERE id = $1', [eventId]);
+  const event = rows[0];
   if (!event) return;
   if (reward < event.reward_achieved) return;
-  db.prepare('UPDATE events SET reward_achieved = ? WHERE id = ?').run(reward, eventId);
-  db.prepare('UPDATE users SET currency = currency + ? WHERE id = 2').run(reward - event.reward_achieved);
+  await pool.query('UPDATE events SET reward_achieved = $1 WHERE id = $2', [reward, eventId]);
+  await pool.query('UPDATE users SET currency = currency + $1 WHERE id = 2', [reward - event.reward_achieved]);
 }
 
 module.exports = {

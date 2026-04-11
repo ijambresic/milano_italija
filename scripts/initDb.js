@@ -1,15 +1,15 @@
 const bcrypt = require('bcryptjs');
-const db = require('../src/config/db');
+const pool = require('../src/config/db');
 
 /*
   Note: 'expired' and 'completed' quests will be removed from the database, so their statuses are not included in the schema.
 */
 
 //there is only 1 user and 1 andmin, so we can simplify the database.
-function createTables() {
-  db.exec(`
+async function createTables() {
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL CHECK(role IN ('admin', 'player')),
@@ -17,69 +17,66 @@ function createTables() {
     );
   `);
 
-  db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS quests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
       description TEXT,
       reward TEXT NOT NULL,
       max_reward INTEGER NOT NULL DEFAULT 0,
       achieved_reward INTEGER NOT NULL DEFAULT 0,
       deadline TEXT,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
 
-  db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS events (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
       description TEXT,
       event_start TEXT NOT NULL,
       event_end TEXT NOT NULL,
       reward TEXT NOT NULL,
       reward_achieved INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
 
-  db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS shop_items (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'bought')),
       description TEXT,
       price INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
 
-  db.exec(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS submitted_quests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      quest_id INTEGER NOT NULL,
-      submission_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      id SERIAL PRIMARY KEY,
+      quest_id INTEGER NOT NULL REFERENCES quests(id),
+      submission_time TIMESTAMP NOT NULL DEFAULT NOW(),
       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'reviewed')),
-      new_reward INTEGER NOT NULL DEFAULT 0,
-      FOREIGN KEY (quest_id) REFERENCES quests(id)
+      new_reward INTEGER NOT NULL DEFAULT 0
     );
   `);
-
 }
 
-function seedUsers() {
-  const existing = db.prepare('SELECT COUNT(*) AS count FROM users').get();
-  if (existing.count > 0) return;
+async function seedUsers() {
+  const { rows } = await pool.query('SELECT COUNT(*) AS count FROM users');
+  if (rows[0].count > 0) return;
 
   const adminHash = bcrypt.hashSync('idemougrcku', 10);
   const playerHash = bcrypt.hashSync('2611', 10);
 
-  db.prepare(`
-    INSERT INTO users (username, password_hash, role, currency)
-    VALUES
-      (?, ?, 'admin', 0),
-      (?, ?, 'player', 0)
-  `).run('ivandasfs', adminHash, 'ena', playerHash);
+  await pool.query(
+    `INSERT INTO users (username, password_hash, role, currency)
+     VALUES ($1, $2, 'admin', 0), ($3, $4, 'player', 0)`,
+    ['ivandasfs', adminHash, 'ena', playerHash]
+  );
 }
 
 // delete existing tables and data for a clean slate
@@ -94,6 +91,11 @@ db.exec(`
   DROP TABLE IF EXISTS users;
 `);
 */
-createTables();
-seedUsers();
-console.log('Database initialized.');
+async function main() {
+  await createTables();
+  await seedUsers();
+  console.log('Database initialized.');
+  await pool.end();
+}
+
+main();

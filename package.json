@@ -1,7 +1,7 @@
 {
   "name": "quest-app-skeleton",
   "version": "1.0.0",
-  "description": "Two-role quest app skeleton (admin + player) using Express and SQLite",
+  "description": "Two-role quest app skeleton (admin + player) using Express and PostgreSQL",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^11.7.0",
+    
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
